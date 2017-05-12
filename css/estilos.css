@@ -27,11 +27,11 @@ body{
 }
 
 .panel-tablero{
-  width: 70%;
+  width: 74%;
   border: 10px solid #E87306;
   background: rgba(232, 115, 6, 0.5);
   border-radius: 5px;
-  height: 700px;
+  height: 740px;
   display: flex;
   flex-flow: row wrap;
 }
@@ -94,7 +94,7 @@ div[class^='col']{
   width: 14.28%;
   display: flex;
   flex-flow: column wrap;
-  justify-content: flex-end;
+  /*justify-content: flex-end;*/
   align-items: center;
 
 }
