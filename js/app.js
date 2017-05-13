@@ -55,8 +55,8 @@ function prenderApagar(selector) {
 }
 
 // Con esta funcion, actualizamos los arrays de caramelos
-function actualizarArraysCaramelos(selector) {
-  $(selector).each(function(i) {
+function actualizarArraysCaramelos() {
+  $('[class^="col-"]').each(function(i) {
     switch (i) {
       case 0:
         caramelosCol1 = $(this).children();
@@ -85,6 +85,7 @@ function actualizarArraysCaramelos(selector) {
 
 // Funcion de prueba que crea arrays de caramelos horizontales
 function caramelosHorizontales(indice) {
+  actualizarArraysCaramelos();
   return caramelosFila = $([caramelosCol1.eq(indice), caramelosCol2.eq(indice),
                        caramelosCol3.eq(indice), caramelosCol4.eq(indice),
                        caramelosCol4.eq(indice), caramelosCol5.eq(indice),
@@ -244,12 +245,12 @@ function colocarPuntuacion(contador) {
 //Se activa cada vez que se inicia el juego, u ocurren cambios en el tablero
 function chequearTablero() {
   // Si hay columnas sin dulces, esta función las rellenará
-  actualizarArraysCaramelos('[class^="col-"]');
+  actualizarArraysCaramelos();
   llenarColumnas();
   // Esta funcion es de prueba
-  validacionVertical();
+  // validacionVertical();
   // Otra funcion de prueba
-  validacionHorizontal();
+  // validacionHorizontal();
 }
 
 function llenarColumnas() {
@@ -275,6 +276,8 @@ function llenarColumnas() {
       }
     }
   });
+  validacionVertical();
+  validacionHorizontal();
 }
 
 /* Fin de mis funciones */
