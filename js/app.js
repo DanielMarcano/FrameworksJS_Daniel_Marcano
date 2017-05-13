@@ -81,8 +81,62 @@ function actualizarArraysCaramelos(selector) {
         break;
     }
   });
+}
 
+// Funcion de prueba
+function validacionVertical() {
+  // Creamos nuestro array de posiciones
+  var posicionCaramelos = [];
+  // Tomamos el primer objeto de nuestra columna
+  var valorComparacion = caramelosCol1.eq(0);
+  // Inicializamos el contador en 0
+  var contador = 0;
+  // Nos servirá para saber si hubo una brecha entre nuestra línea de dulces
+  var detenerContador = false;
+  // Iteramos el array de caramelosCol1
+  for (var i = 1; i < caramelosCol1.length; i++) {
+    // Guardamos el src de todos los elementos, para compararlos
+    var srcComparacion = valorComparacion.attr('src');
+    // srcCaramelo siempre vendrá después de valorComparacion
+    var srcCaramelo = caramelosCol1.eq(i).attr('src');
 
+    if (srcComparacion != srcCaramelo) {
+      valorComparacion = caramelosCol1.eq(i);
+      if (contador < 2) {
+        posicionCaramelos = [];
+        contador = 0;
+      } else {
+        detenerContador = true;
+      }
+    } else {
+      if (!detenerContador) {
+        if (contador == 0) {
+          posicionCaramelos.push(i-1);
+        }
+        // Guardamos la posicion del caramelo que contamos
+        posicionCaramelos.push(i);
+        contador += 1;
+      }
+    }
+  }
+  // Si hubo tres o más caramelos en línea
+  if (contador >= 2) {
+    // alert('posicionCaramelos tiene ' + posicionCaramelos.length + ' valores');
+    // alert('hubo '+(contador+1)+' caramelos seguidos en la col 1');
+    eliminarVertical(posicionCaramelos, caramelosCol1);
+  }
+
+}
+// Otra funcion de prueba
+function eliminarVertical(posicionCaramelos, arrayCaramelos) {
+  for (var i = 0; i < posicionCaramelos.length; i++) {
+    alert('borrare el caramelo numero ' + posicionCaramelos[i])
+    var tmpCaramelo = $(arrayCaramelos).eq(posicionCaramelos[i]).fadeOut(1000);
+    tmpCaramelo.remove(1000);
+
+  }
+  actualizarArraysCaramelos('[class^="col-"]');
+  chequearTablero();
 }
 
 //Se activa cada vez que se inicia el juego, u ocurren cambios en el tablero
