@@ -5,8 +5,8 @@ caramelosCol3,
 caramelosCol4,
 caramelosCol5,
 caramelosCol6,
-caramelosCol7;
-
+caramelosCol7,
+caramelosFila;
 
 // Funcion de la documentación de Mozilla para obtener números Random
 // El min es incluyente y el max excluyente
@@ -83,6 +83,14 @@ function actualizarArraysCaramelos(selector) {
   });
 }
 
+// Funcion de prueba que crea arrays de caramelos horizontales
+function caramelosHorizontales(indice) {
+  return caramelosFila = $([caramelosCol1.eq(indice), caramelosCol2.eq(indice),
+                       caramelosCol3.eq(indice), caramelosCol4.eq(indice),
+                       caramelosCol4.eq(indice), caramelosCol5.eq(indice),
+                       caramelosCol6.eq(indice), caramelosCol7.eq(indice)]);
+}
+
 // Funcion de prueba
 function validacionVertical() {
   // Creamos nuestro array de posiciones
@@ -124,37 +132,7 @@ function validacionVertical() {
     eliminarVertical(posicionCaramelos, caramelosCol1);
     colocarPuntuacion(contador);
   }
-
 }
-// Funcion de prueba de la puntuacion
-function colocarPuntuacion(contador) {
-  var score = $('#score-text');
-  var puntaje = Number($('#score-text').text());
-  console.log(typeof puntaje + ' ese es el tipo de mi var puntaje')
-  console.log(puntaje + ' mi puntaje inicial')
-  switch (contador) {
-    case 2:
-      puntaje += 25;
-      console.log(puntaje + ' mi puntaje tras sumar')
-      break;
-    case 3:
-      puntaje += 50;
-      console.log(puntaje + ' mi puntaje tras sumar')
-      break;
-    case 4:
-      puntaje += 75;
-      console.log(puntaje + ' mi puntaje tras sumar')
-      break;
-    case 5:
-      puntaje += 100;
-      console.log(puntaje + ' mi puntaje tras sumar')
-      break;
-  }
-  console.log(puntaje + ' mi puntaje final')
-  $(score).text(puntaje);
-}
-
-
 
 // Otra funcion de prueba
 function eliminarVertical(posicionCaramelos, arrayCaramelos) {
@@ -162,25 +140,123 @@ function eliminarVertical(posicionCaramelos, arrayCaramelos) {
     var tmpCaramelo = arrayCaramelos.eq(posicionCaramelos[i]).fadeOut(1500);
     $(tmpCaramelo).remove();
   }
-  actualizarArraysCaramelos('[class^="col-"]');
-  llenarColumnas();
+  // actualizarArraysCaramelos('[class^="col-"]');
+  // llenarColumnas();
   chequearTablero();
+}
+
+
+
+// Prueba validacion horizontal
+function validacionHorizontal() {
+  // Creamos nuestro array de posiciones
+  var posicionCaramelos = [];
+  var posicionExtra = [];
+  // Creamos nuestro array de caramelos
+  var caramelosFila = caramelosHorizontales(0);
+  // Tomamos el primer objeto de nuestra fila
+  var valorComparacion = caramelosFila[0];
+
+  // Inicializamos el contador en 0
+  var contador = 0;
+  var contadorExtra = 0;
+  // Nos servirá para saber si hubo una brecha entre nuestra línea de dulces
+  var detenerContador = false;
+  // Iteramos el array de caramelosFila
+  for (var i = 1; i < caramelosFila.length; i++) {
+    // Guardamos el src de todos los elementos, para compararlos
+    var srcComparacion = valorComparacion.attr('src');
+    // srcCaramelo siempre vendrá después de valorComparacion
+    var srcCaramelo = caramelosFila[i].attr('src');
+
+    if (srcComparacion != srcCaramelo) {
+      valorComparacion = caramelosFila[i];
+      if (contador < 2) {
+        posicionCaramelos = [];
+        contador = 0;
+      } else {
+        detenerContador = true;
+      }
+    } else {
+      if (!detenerContador && srcComparacion == srcCaramelo) {
+        if (contador == 0) {
+          posicionCaramelos.push(i-1);
+        }
+        // Guardamos la posicion del caramelo que contamos
+        posicionCaramelos.push(i);
+        contador += 1;
+      } else {
+        contadorExtra += 1;
+        if (!posicionExtra) {
+          posicionExtra.push(i-1);
+        }
+        posicionExtra.push(i)
+      }
+    }
+  }
+  // Si hubo tres o más caramelos en línea
+  if (contador >= 2) {
+    if (contadorExtra < 2) {
+      contadorExtra = 0;
+      posicionExtra = null;
+    }
+    eliminarHorizontal(posicionCaramelos, caramelosFila);
+    colocarPuntuacion(contador);
+  }
+}
+
+function eliminarHorizontal(posicionCaramelos, caramelosFila) {
+  for (var i = 0; i < posicionCaramelos.length; i++) {
+    var tmpCaramelo = caramelosFila[posicionCaramelos[i]].fadeOut(1500);
+    $(tmpCaramelo).remove();
+  }
+  // actualizarArraysCaramelos('[class^="col-"]');
+  // llenarColumnas();
+  chequearTablero();
+}
+
+
+
+
+// Funcion de prueba de la puntuacion
+function colocarPuntuacion(contador) {
+  var score = $('#score-text');
+  var puntaje = Number($('#score-text').text());
+  switch (contador) {
+    case 2:
+      puntaje += 25;
+      break;
+    case 4:
+      puntaje += 50;
+      break;
+    case 5:
+      puntaje += 75;
+      break;
+    case 6:
+      puntaje += 100;
+      break;
+    case 7:
+      puntaje += 200;
+  }
+  $(score).text(puntaje);
 }
 
 //Se activa cada vez que se inicia el juego, u ocurren cambios en el tablero
 function chequearTablero() {
   // Si hay columnas sin dulces, esta función las rellenará
-  llenarColumnas('[class^="col-"]');
   actualizarArraysCaramelos('[class^="col-"]');
+  llenarColumnas();
   // Esta funcion es de prueba
   validacionVertical();
+  // Otra funcion de prueba
+  validacionHorizontal();
 }
 
-function llenarColumnas(selector) {
+function llenarColumnas() {
   var tope = 6;
-  var columna = $(selector);
+  var columna = $('[class^="col-"]');
 
-  $(selector).each(function() {
+  columna.each(function() {
     var caramelos = $(this).children().length;
     var agrega = tope - caramelos;
     for (var i = 0; i < agrega; i++) {
@@ -203,8 +279,7 @@ function llenarColumnas(selector) {
 
 /* Fin de mis funciones */
 
-// Inicio de la función $(document).ready
-var respuesta;
+/* Acá se inicializa mi juego */
 $(function() {
   // Se activa infinitamente la animación del título
   // prenderApagar('h1.main-titulo');
@@ -213,4 +288,3 @@ $(function() {
   });
 
 });
-// Fin de la función $(document).ready
