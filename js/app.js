@@ -121,21 +121,49 @@ function validacionVertical() {
   }
   // Si hubo tres o más caramelos en línea
   if (contador >= 2) {
-    // alert('posicionCaramelos tiene ' + posicionCaramelos.length + ' valores');
-    // alert('hubo '+(contador+1)+' caramelos seguidos en la col 1');
     eliminarVertical(posicionCaramelos, caramelosCol1);
+    colocarPuntuacion(contador);
   }
 
 }
+// Funcion de prueba de la puntuacion
+function colocarPuntuacion(contador) {
+  var score = $('#score-text');
+  var puntaje = Number($('#score-text').text());
+  console.log(typeof puntaje + ' ese es el tipo de mi var puntaje')
+  console.log(puntaje + ' mi puntaje inicial')
+  switch (contador) {
+    case 2:
+      puntaje += 25;
+      console.log(puntaje + ' mi puntaje tras sumar')
+      break;
+    case 3:
+      puntaje += 50;
+      console.log(puntaje + ' mi puntaje tras sumar')
+      break;
+    case 4:
+      puntaje += 75;
+      console.log(puntaje + ' mi puntaje tras sumar')
+      break;
+    case 5:
+      puntaje += 100;
+      console.log(puntaje + ' mi puntaje tras sumar')
+      break;
+  }
+  console.log(puntaje + ' mi puntaje final')
+  $(score).text(puntaje);
+}
+
+
+
 // Otra funcion de prueba
 function eliminarVertical(posicionCaramelos, arrayCaramelos) {
   for (var i = 0; i < posicionCaramelos.length; i++) {
-    alert('borrare el caramelo numero ' + posicionCaramelos[i])
-    var tmpCaramelo = $(arrayCaramelos).eq(posicionCaramelos[i]).fadeOut(1000);
-    tmpCaramelo.remove(1000);
-
+    var tmpCaramelo = arrayCaramelos.eq(posicionCaramelos[i]).fadeOut(1500);
+    $(tmpCaramelo).remove();
   }
   actualizarArraysCaramelos('[class^="col-"]');
+  llenarColumnas();
   chequearTablero();
 }
 
