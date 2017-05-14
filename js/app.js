@@ -6,6 +6,7 @@ caramelosCol4,
 caramelosCol5,
 caramelosCol6,
 caramelosCol7,
+caramelosColumna,
 caramelosFila;
 
 // Funcion de la documentación de Mozilla para obtener números Random
@@ -56,35 +57,20 @@ function prenderApagar(selector) {
 
 // Con esta funcion, actualizamos los arrays de caramelos
 function actualizarArraysCaramelos() {
-  $('[class^="col-"]').each(function(i) {
-    switch (i) {
-      case 0:
-        caramelosCol1 = $(this).children();
-        break;
-      case 1:
-        caramelosCol2 = $(this).children();
-        break;
-      case 2:
-        caramelosCol3 = $(this).children();
-        break;
-      case 3:
-        caramelosCol4 = $(this).children();
-        break;
-      case 4:
-        caramelosCol5 = $(this).children();
-        break;
-      case 5:
-        caramelosCol6 = $(this).children();
-        break;
-      case 6:
-        caramelosCol7 = $(this).children();
-        break;
-    }
-  });
+
+  caramelosCol1 = $('.col-1').children();
+  caramelosCol2 = $('.col-2').children();
+  caramelosCol3 = $('.col-3').children();
+  caramelosCol4 = $('.col-4').children();
+  caramelosCol5 = $('.col-5').children();
+  caramelosCol6 = $('.col-6').children();
+  caramelosCol7 = $('.col-7').children();
+
+
 }
 
 // Funcion de prueba que crea arrays de caramelos horizontales
-function caramelosHorizontales(indice) {
+function caramelosFilas(indice) {
   actualizarArraysCaramelos();
   return caramelosFila = $([caramelosCol1.eq(indice), caramelosCol2.eq(indice),
                        caramelosCol3.eq(indice), caramelosCol4.eq(indice),
@@ -92,25 +78,35 @@ function caramelosHorizontales(indice) {
                        caramelosCol6.eq(indice), caramelosCol7.eq(indice)]);
 }
 
+function caramelosColumnas(indice) {
+  actualizarArraysCaramelos();
+  caramelosColumna = $([caramelosCol1, caramelosCol2, caramelosCol3,
+                        caramelosCol4, caramelosCol5, caramelosCol6,
+                        caramelosCol7]);
+  return caramelosColumna[indice]
+}
+
 // Funcion de prueba
 function validacionVertical() {
+  for (var j = 0; j < 7; j++) {
   // Creamos nuestro array de posiciones
   var posicionCaramelos = [];
+  var caramelosColumna = caramelosColumnas(j);
   // Tomamos el primer objeto de nuestra columna
-  var valorComparacion = caramelosCol1.eq(0);
+  var valorComparacion = caramelosColumna.eq(0);
   // Inicializamos el contador en 0
   var contador = 0;
   // Nos servirá para saber si hubo una brecha entre nuestra línea de dulces
   var detenerContador = false;
-  // Iteramos el array de caramelosCol1
-  for (var i = 1; i < caramelosCol1.length; i++) {
+  // Iteramos el array de caramelosColumna
+  for (var i = 1; i < caramelosColumna.length; i++) {
     // Guardamos el src de todos los elementos, para compararlos
     var srcComparacion = valorComparacion.attr('src');
     // srcCaramelo siempre vendrá después de valorComparacion
-    var srcCaramelo = caramelosCol1.eq(i).attr('src');
+    var srcCaramelo = caramelosColumna.eq(i).attr('src');
 
     if (srcComparacion != srcCaramelo) {
-      valorComparacion = caramelosCol1.eq(i);
+      valorComparacion = caramelosColumna.eq(i);
       if (contador < 2) {
         posicionCaramelos = [];
         contador = 0;
@@ -130,9 +126,10 @@ function validacionVertical() {
   }
   // Si hubo tres o más caramelos en línea
   if (contador >= 2) {
-    eliminarVertical(posicionCaramelos, caramelosCol1);
+    eliminarVertical(posicionCaramelos, caramelosColumna);
     colocarPuntuacion(contador);
   }
+}
 }
 
 // Otra funcion de prueba
@@ -150,11 +147,13 @@ function eliminarVertical(posicionCaramelos, arrayCaramelos) {
 
 // Prueba validacion horizontal
 function validacionHorizontal() {
+  // Con este for, le aplicamos la validacion a todas las filas
+  for (var j = 0; j < 6; j++) {
   // Creamos nuestro array de posiciones
   var posicionCaramelos = [];
   var posicionExtra = [];
   // Creamos nuestro array de caramelos
-  var caramelosFila = caramelosHorizontales(0);
+  var caramelosFila = caramelosFilas(j);
   // Tomamos el primer objeto de nuestra fila
   var valorComparacion = caramelosFila[0];
 
@@ -205,6 +204,7 @@ function validacionHorizontal() {
     colocarPuntuacion(contador);
   }
 }
+}
 
 function eliminarHorizontal(posicionCaramelos, caramelosFila) {
   for (var i = 0; i < posicionCaramelos.length; i++) {
@@ -245,7 +245,7 @@ function colocarPuntuacion(contador) {
 //Se activa cada vez que se inicia el juego, u ocurren cambios en el tablero
 function chequearTablero() {
   // Si hay columnas sin dulces, esta función las rellenará
-  actualizarArraysCaramelos();
+  // actualizarArraysCaramelos();
   llenarColumnas();
   // Esta funcion es de prueba
   // validacionVertical();
@@ -276,9 +276,15 @@ function llenarColumnas() {
       }
     }
   });
+  realizarValidaciones();
+}
+
+function realizarValidaciones() {
+  actualizarArraysCaramelos();
   validacionVertical();
   validacionHorizontal();
 }
+
 
 /* Fin de mis funciones */
 
