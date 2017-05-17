@@ -7,9 +7,7 @@ caramelosCol5,
 caramelosCol6,
 caramelosCol7,
 caramelosColumna,
-caramelosFila,
-carameloClick,
-carameloDobleClick;
+caramelosFila;
 
 // Obtiene numeros random
 function getRandomInt(min, max) {
@@ -279,14 +277,6 @@ function agregaEventos() {
   $('img').droppable({
     drop: reemplazarCaramelos
   })
-  $('img').contextmenu(function(event) {
-    event.stopPropagation();
-    carameloClick = event.target;
-  })
-  $('img').dblclick(function(event) {
-    event.stopPropagation();
-    carameloDobleClick = event.target;
-  })
 }
 
 // Controla el movimiento de los caramelos
@@ -305,7 +295,15 @@ function reemplazarCaramelos(event, carameloDrag) {
   $(carameloDrag.draggable).attr('src', nuevo);
   $(this).attr('src', dragSrc);
   actualizarArraysCaramelos();
-  chequearTablero()
+  actualizarMovimientos();
+  chequearTablero();
+}
+
+// Actualiza el contador de Movimientos
+function actualizarMovimientos() {
+  var valorActual = Number($('#movimientos-text').text());
+  var suma = valorActual += 1;
+  $('#movimientos-text').text(suma);
 }
 
 
