@@ -7,7 +7,9 @@ caramelosCol5,
 caramelosCol6,
 caramelosCol7,
 caramelosColumna,
-caramelosFila;
+caramelosFila,
+carameloClick,
+carameloDobleClick;
 
 // Obtiene numeros random
 function getRandomInt(min, max) {
@@ -243,22 +245,67 @@ function llenarColumnas() {
       // Si la columna no tiene caramelos y estás en la primera iteración
       // usa append
       if (i == 0 && caramelos < 1) {
-        $(this).append('<img src="image/'+numeroCaramelo+'.png" style="display: none;" class="ui-state-default sortable"></img>');
+        $(this).append('<img src="image/'+numeroCaramelo+'.png"></img>');
         $(this).find('img').slideDown(1000);
       } else {
         // Sino, usa before, para que los nuevos caramelos
         // empujen a los viejos hacia abajo
-        $(this).find('img:eq(0)').before('<img src="image/'+numeroCaramelo+'.png" style="display: none;" class="ui-state-default sortable"></img>')
+        $(this).find('img:eq(0)').before('<img src="image/'+numeroCaramelo+'.png"></img>')
         $(this).find('img:eq(0)').slideDown(1000);
       }
     }
   });
+  agregaEventos();
   realizarValidaciones();
 }
 
+// Activa las validaciones verticales y horizontales
 function realizarValidaciones() {
   validacionVertical();
   validacionHorizontal();
+}
+
+// Añade los eventos de los caramelos. Es llamada cada vez que se crean caramelos
+function agregaEventos() {
+  $('img').draggable({
+    containment: '.panel-tablero',
+    droppable: 'img',
+    revert: true,
+    revertDuration: 1000,
+    grid: [100, 50],
+    zIndex: 10,
+    drag: controlarMovimiento
+  });
+  $('img').droppable({
+    drop: reemplazarCaramelos
+  })
+  $('img').contextmenu(function(event) {
+    event.stopPropagation();
+    carameloClick = event.target;
+  })
+  $('img').dblclick(function(event) {
+    event.stopPropagation();
+    carameloDobleClick = event.target;
+  })
+}
+
+// Controla el movimiento de los caramelos
+function controlarMovimiento(event, carameloDrag) {
+  event.stopPropagation();
+  carameloDrag.position.top = Math.min(100, carameloDrag.position.top);
+  carameloDrag.position.bottom = Math.min(100, carameloDrag.position.bottom);
+  carameloDrag.position.left = Math.min(100, carameloDrag.position.left);
+  carameloDrag.position.right = Math.min(100, carameloDrag.position.right);
+}
+
+// Pruebas relacionadas al intercambio de caramelos
+function reemplazarCaramelos(event, carameloDrag) {
+  var dragSrc = $(carameloDrag.draggable).attr('src');
+  var nuevo = $(this).attr('src');
+  $(carameloDrag.draggable).attr('src', nuevo);
+  $(this).attr('src', dragSrc);
+  actualizarArraysCaramelos();
+  chequearTablero()
 }
 
 
@@ -268,19 +315,9 @@ function realizarValidaciones() {
 $(function() {
   // Se activa infinitamente la animación del título
   // prenderApagar('h1.main-titulo');
+
   $('.btn-reinicio').click(function() {
     chequearTablero();
-    $('img').draggable({
-      containment: '.panel-tablero',
-      droppable: 'img',
-      grid: [120, 120],
-      snap: [true, 'img']
-    });
-    $('img').droppable({
-      drop: function() {
-        alert('acabas de poner un caramelo sobre otro')
-      }
-    })
   });
 
 });
