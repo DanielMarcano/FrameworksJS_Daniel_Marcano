@@ -270,13 +270,13 @@ function agregaEventos() {
     droppable: 'img',
     revert: true,
     revertDuration: 1000,
-    grid: [100, 50],
+    grid: [100, 100],
     zIndex: 10,
     drag: controlarMovimiento
   });
   $('img').droppable({
     drop: reemplazarCaramelos
-  })
+  });
 }
 
 // Controla el movimiento de los caramelos
@@ -290,13 +290,18 @@ function controlarMovimiento(event, carameloDrag) {
 
 // Pruebas relacionadas al intercambio de caramelos
 function reemplazarCaramelos(event, carameloDrag) {
-  var dragSrc = $(carameloDrag.draggable).attr('src');
-  var nuevo = $(this).attr('src');
-  $(carameloDrag.draggable).attr('src', nuevo);
+  // Almacenamos nuestro caramelo draggable en una variable
+  var carameloDrag = $(carameloDrag.draggable);
+  // Obtenemos el src del caramelo que arrastramos (draggable)
+  var dragSrc = carameloDrag.attr('src');
+  // Obtenemos el src del caramelo objetivo (droppable)
+  var dropSrc = $(this).attr('src');
+
+  carameloDrag.attr('src', dropSrc);
   $(this).attr('src', dragSrc);
   actualizarArraysCaramelos();
-  actualizarMovimientos();
   chequearTablero();
+  actualizarMovimientos();
 }
 
 // Actualiza el contador de Movimientos
@@ -305,7 +310,6 @@ function actualizarMovimientos() {
   var suma = valorActual += 1;
   $('#movimientos-text').text(suma);
 }
-
 
 /* Fin de mis funciones */
 
