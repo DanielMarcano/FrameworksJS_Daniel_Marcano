@@ -9,14 +9,14 @@ caramelosCol7,
 caramelosColumna,
 caramelosFila;
 
+/*Inicio de mis funciones*/
+
 // Obtiene numeros random
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
 }
-
-/*Inicio de mis funciones*/
 
 //Hace que el título Match Game cambie de color infinitamente
 function prenderApagar(selector) {
@@ -25,7 +25,7 @@ function prenderApagar(selector) {
   },
   {
     step: function() {
-      $(this).css('color', '#DCFF0E')
+      $(this).css('color', '#DCFF0E');
     },
     queue: true
   }
@@ -35,7 +35,7 @@ function prenderApagar(selector) {
 },
 {
   step: function() {
-    $(this).css('color', 'red')
+    $(this).css('color', 'red');
   },
   queue: true
 }, 600
@@ -46,8 +46,7 @@ function prenderApagar(selector) {
 },
 {
   step: function() {
-    $(this).css('color', '#DCFF0E')
-    prenderApagar(selector)
+    $(this).css('color', '#DCFF0E');
   },
   queue: true
 }
@@ -58,9 +57,10 @@ function prenderApagar(selector) {
 {
   step: function() {
     $(this).css('color', 'purple')
+    prenderApagar('h1.main-titulo');
   },
   queue: true
-}, 700
+}
 )
 }
 
@@ -92,10 +92,9 @@ function caramelosColumnas(indice) {
   caramelosColumna = $([caramelosCol1, caramelosCol2, caramelosCol3,
                         caramelosCol4, caramelosCol5, caramelosCol6,
                         caramelosCol7]);
-  return caramelosColumna[indice]
+  return caramelosColumna[indice];
 }
 
-// Funcion de prueba
 function validacionVertical() {
   for (var j = 0; j < 7; j++) {
     // Creamos nuestro array de posiciones
@@ -142,48 +141,31 @@ function validacionVertical() {
 
       valorComparacion = columna.eq(i);
     }
-    console.log('INICIO COLUMNA ' + j)
-    console.log('El array posicionCaramelos horizontal semifinal SIN MERGE: ' + posicionCaramelos)
-    console.log('El array posicionExtras vertical final: ' + posicionExtras)
     // Si posicionExtras tiene más de dos valores, lo concatenas con posicionCaramelos
     if (posicionExtras.length > 2) {
       posicionCaramelos = $.merge(posicionCaramelos, posicionExtras);
     }
-    console.log('El array posicionCaramelos vertical semifinal: ' + posicionCaramelos)
-
     // Si posicionCaramelos tiene menos de/o dos caramelos, lo borras
     if (posicionCaramelos.length <= 2) {
       posicionCaramelos = [];
     }
-    // El contador sera igual al numero de caramelos en el array
+    // El numeroCaramelos sera igual al numero de elementos en el array
     numeroCaramelos = posicionCaramelos.length;
     // Si hubo tres o más caramelos en línea
     if (numeroCaramelos >= 3) {
-      console.log('el num caramelos final vertical fue de: ' + numeroCaramelos)
-      console.log('array posicionCaramelos vertical final: ' + posicionCaramelos)
       eliminarVertical(posicionCaramelos, columna);
       colocarPuntuacion(numeroCaramelos);
     }
-    console.log('FIN COLUMNA ' + j)
-
   }
 }
 
-// Otra funcion de prueba
+// Añade la clase eliminar a "líneas" verticales
 function eliminarVertical(posicionCaramelos, columna) {
   for (var i = 0; i < posicionCaramelos.length; i++) {
-    // var tmpCaramelo = columna.eq(posicionCaramelos[i]).fadeOut(500);
-    // $(tmpCaramelo).remove();
     columna.eq(posicionCaramelos[i]).addClass('eliminar');
   }
-  // setTimeout(function() {
-  //   chequearTablero();
-  // }, 2000);
 }
 
-
-
-// Prueba validacion horizontal
 function validacionHorizontal() {
   // Con este for, le aplicamos la validacion a todas las filas
   for (var j = 0; j < 6; j++) {
@@ -232,52 +214,36 @@ function validacionHorizontal() {
 
     valorComparacion = fila[i];
   }
-  console.log('INICIO FILA ' + j)
-  console.log('El array posicionExtras horizontal final: ' + posicionExtras)
   // Si posicionExtras tiene más de dos valores, lo concatenas con posicionCaramelos
   if (posicionExtras.length > 2) {
     posicionCaramelos = $.merge(posicionCaramelos, posicionExtras);
   }
-  console.log('El array posicionCaramelos horizontal semifinal: ' + posicionCaramelos)
   // Si posicionCaramelos tiene menos de/o dos caramelos, lo borras
   if (posicionCaramelos.length <= 2) {
     posicionCaramelos = [];
   }
-  // El contador sera igual al numero de caramelos en el array
+  // El numeroCaramelos sera igual al numero de elementos en el array
   numeroCaramelos = posicionCaramelos.length;
   // Si hubo tres o más caramelos en línea
   if (numeroCaramelos >= 3) {
-    console.log('el num caramelos final horizontal fue de: ' + numeroCaramelos)
-    console.log('array posicionCaramelos horizontal final: ' + posicionCaramelos)
     eliminarHorizontal(posicionCaramelos, fila);
     colocarPuntuacion(numeroCaramelos);
   }
-  console.log('FIN FILA ' + j)
 }
 }
 
+// Añade la clase eliminar a "líneas" horizontales
 function eliminarHorizontal(posicionCaramelos, fila) {
   for (var i = 0; i < posicionCaramelos.length; i++) {
-    // var tmpCaramelo = fila[posicionCaramelos[i]].fadeOut(1500);
-    // $(tmpCaramelo).remove();
     fila[posicionCaramelos[i]].addClass('eliminar');
   }
-  // setTimeout(function() {
-  //   chequearTablero();
-  // }, 2000);
 }
 
-// function removeCaramelo(selector) {
-//   setTimeout(function() {
-//   $(selector).remove();
-//   }, 1000 );
-// }
-
 // Coloca la puntuacion de acuerdo al numero de caramelos obtenido
-function colocarPuntuacion(contador) {
+function colocarPuntuacion(numeroCaramelos) {
   var score = $('#score-text');
   var puntaje = Number($('#score-text').text());
-  switch (contador) {
+  switch (numeroCaramelos) {
     case 3:
       puntaje += 25;
       break;
@@ -311,7 +277,7 @@ function llenarColumnas() {
     var agrega = tope - caramelos;
     for (var i = 0; i < agrega; i++) {
       // Obtiene un caramelo al azar
-      var numeroCaramelo = getRandomInt(1, 5)
+      var numeroCaramelo = getRandomInt(1, 5);
       // Si la columna no tiene caramelos y estás en la primera iteración
       // usa append
       if (i == 0 && caramelos < 1) {
@@ -320,7 +286,7 @@ function llenarColumnas() {
       } else {
         // Sino, usa before, para que los nuevos caramelos
         // empujen a los viejos hacia abajo
-        $(this).find('img:eq(0)').before('<img src="image/'+numeroCaramelo+'.png"></img>')
+        $(this).find('img:eq(0)').before('<img src="image/'+numeroCaramelo+'.png"></img>');
         $(this).find('img:eq(0)').slideDown();
       }
     }
@@ -333,6 +299,7 @@ function llenarColumnas() {
 function realizarValidaciones() {
   validacionVertical();
   validacionHorizontal();
+  // Si hay caramelos que eliminar...
   if ($('img.eliminar').length != 0) {
     setTimeout(eliminarCaramelos(), 500);
   }
@@ -365,7 +332,7 @@ function reactivaEventos() {
   $('img').droppable('enable');
 }
 
-// Controla el movimiento de los caramelos
+// Limita el movimiento de los caramelos
 function controlarMovimiento(event, carameloDrag) {
   carameloDrag.position.top = Math.min(100, carameloDrag.position.top);
   carameloDrag.position.bottom = Math.min(100, carameloDrag.position.bottom);
@@ -373,24 +340,33 @@ function controlarMovimiento(event, carameloDrag) {
   carameloDrag.position.right = Math.min(100, carameloDrag.position.right);
 }
 
-// Pruebas relacionadas al intercambio de caramelos
+// Reemplaza los caramelos (drag and drop)
 function reemplazarCaramelos(event, carameloDrag) {
   // Almacenamos nuestro caramelo draggable en una variable
   var carameloDrag = $(carameloDrag.draggable);
   // Obtenemos el src del caramelo que arrastramos (draggable)
   var dragSrc = carameloDrag.attr('src');
+  // Almacenamos nuestro caramelo droppable en una variable
+  var carameloDrop = $(this);
   // Obtenemos el src del caramelo objetivo (droppable)
-  var dropSrc = $(this).attr('src');
-
+  var dropSrc = carameloDrop.attr('src');
+  // Intercambiamos el src de los caramelos
   carameloDrag.attr('src', dropSrc);
-  $(this).attr('src', dragSrc);
+  // $(this).attr('src', dragSrc);
+  carameloDrop.attr('src', dragSrc);
 
   setTimeout(function() {
     actualizarArraysCaramelos();
     chequearTablero();
-    actualizarMovimientos();
+    // Este condicional impide las jugadas incorrectas
+    if ($('img.eliminar').length == 0) {
+      carameloDrag.attr('src', dragSrc);
+      carameloDrop.attr('src', dropSrc);
+      actualizarArraysCaramelos();
+    } else {
+      actualizarMovimientos();
+    }
   }, 500);
-
 
 }
 
@@ -401,6 +377,7 @@ function actualizarMovimientos() {
   $('#movimientos-text').text(suma);
 }
 
+// Elimina los caramelos con una animacion
 function eliminarCaramelos() {
   desactivaEventos();
   $('img.eliminar').effect('pulsate', 1000);
@@ -421,6 +398,14 @@ function eliminarCaramelos() {
   )
 }
 
+//Culmina el juego
+function culminarJuego() {
+  $('div.panel-tablero').effect('fold');
+  $('h1.main-titulo').css('text-align', 'center')
+  .text('Thanks for playing!');
+  $('div').width('100%');
+}
+
 /* Fin de mis funciones */
 
 /* Acá se inicializa mi juego */
@@ -429,11 +414,15 @@ $(function() {
   prenderApagar('h1.main-titulo');
 
   $('.btn-reinicio').click(function() {
+    // Recarga la página
     if ($(this).text() == 'Reiniciar') {
       location.reload(true);
     }
     chequearTablero();
     $(this).text('Reiniciar');
+    // Comenzar a contar el tiempo
+    $('#timer').startTimer({
+      onComplete: culminarJuego
+    });
   });
-
 });
