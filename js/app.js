@@ -306,12 +306,12 @@ function llenarColumnas() {
       // usa append
       if (i == 0 && caramelos < 1) {
         $(this).append('<img src="image/'+numeroCaramelo+'.png"></img>');
-        $(this).find('img').slideDown(1000);
+        $(this).find('img').slideDown();
       } else {
         // Sino, usa before, para que los nuevos caramelos
         // empujen a los viejos hacia abajo
         $(this).find('img:eq(0)').before('<img src="image/'+numeroCaramelo+'.png"></img>')
-        $(this).find('img:eq(0)').slideDown(1000);
+        $(this).find('img:eq(0)').slideDown();
       }
     }
   });
@@ -323,6 +323,9 @@ function llenarColumnas() {
 function realizarValidaciones() {
   validacionVertical();
   validacionHorizontal();
+  if ($('img.eliminar').length != 0) {
+    setTimeout(eliminarCaramelos(), 500);
+  }
 }
 
 // Añade los eventos de los caramelos. Es llamada cada vez que se crean caramelos
@@ -331,7 +334,7 @@ function agregaEventos() {
     containment: '.panel-tablero',
     droppable: 'img',
     revert: true,
-    revertDuration: 1000,
+    revertDuration: 500,
     grid: [100, 100],
     zIndex: 10,
     drag: controlarMovimiento
@@ -339,11 +342,21 @@ function agregaEventos() {
   $('img').droppable({
     drop: reemplazarCaramelos
   });
+  reactivaEventos();
+}
+
+function desactivaEventos() {
+  $('img').draggable('disable');
+  $('img').droppable('disable');
+}
+
+function reactivaEventos() {
+  $('img').draggable('enable');
+  $('img').droppable('enable');
 }
 
 // Controla el movimiento de los caramelos
 function controlarMovimiento(event, carameloDrag) {
-  event.stopPropagation();
   carameloDrag.position.top = Math.min(100, carameloDrag.position.top);
   carameloDrag.position.bottom = Math.min(100, carameloDrag.position.bottom);
   carameloDrag.position.left = Math.min(100, carameloDrag.position.left);
@@ -361,9 +374,14 @@ function reemplazarCaramelos(event, carameloDrag) {
 
   carameloDrag.attr('src', dropSrc);
   $(this).attr('src', dragSrc);
-  actualizarArraysCaramelos();
-  chequearTablero();
-  actualizarMovimientos();
+
+  setTimeout(function() {
+    actualizarArraysCaramelos();
+    chequearTablero();
+    actualizarMovimientos();
+  }, 500);
+
+
 }
 
 // Actualiza el contador de Movimientos
@@ -371,6 +389,26 @@ function actualizarMovimientos() {
   var valorActual = Number($('#movimientos-text').text());
   var suma = valorActual += 1;
   $('#movimientos-text').text(suma);
+}
+
+function eliminarCaramelos() {
+  desactivaEventos();
+  $('img.eliminar').effect('pulsate', 1000);
+  $('img.eliminar').animate({
+    opacity: '0'
+  }, 1000
+  )
+  .animate({
+    opacity: '0'
+  },
+  {
+    step: function() {
+      $('img.eliminar').remove();
+      chequearTablero();
+    },
+    queue: true
+  }
+  )
 }
 
 /* Fin de mis funciones */
