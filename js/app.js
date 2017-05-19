@@ -401,7 +401,7 @@ function eliminarCaramelos() {
 //Culmina el juego
 function culminarJuego() {
   $('div.panel-tablero').effect('fold');
-  $('h1.main-titulo').css('text-align', 'center')
+  $('h1.main-titulo').css('text-align', 'center');
   .text('Thanks for playing!');
   $('div').width('100%');
 }
