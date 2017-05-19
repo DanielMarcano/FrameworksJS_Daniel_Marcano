@@ -108,7 +108,7 @@ function validacionVertical() {
       var srcCaramelo = columna.eq(i).attr('src');
 
       if (srcComparacion != srcCaramelo) {
-        if (contador >= 2) {
+        if (posicionCaramelos.length >= 3) {
           brecha = true;
         } else {
           posicionCaramelos = [];
@@ -134,7 +134,7 @@ function validacionVertical() {
     }
     console.log('INICIO COLUMNA ' + j)
     console.log('El array posicionCaramelos horizontal semifinal SIN MERGE: ' + posicionCaramelos)
-    console.log('El array posicionExtras vertical final: ' + posicionCaramelos)
+    console.log('El array posicionExtras vertical final: ' + posicionExtras)
     // Si posicionExtras tiene más de dos valores, lo concatenas con posicionCaramelos
     if (posicionExtras.length > 2) {
       posicionCaramelos = $.merge(posicionCaramelos, posicionExtras);
@@ -198,7 +198,7 @@ function validacionHorizontal() {
     var srcCaramelo = fila[i].attr('src');
 
     if (srcComparacion != srcCaramelo) {
-      if (contador >= 2) {
+      if (posicionCaramelos.length >= 3) {
         brecha = true;
       } else {
         posicionCaramelos = [];
@@ -223,7 +223,7 @@ function validacionHorizontal() {
     valorComparacion = fila[i];
   }
   console.log('INICIO FILA ' + j)
-  console.log('El array posicionExtras horizontal final: ' + posicionCaramelos)
+  console.log('El array posicionExtras horizontal final: ' + posicionExtras)
   // Si posicionExtras tiene más de dos valores, lo concatenas con posicionCaramelos
   if (posicionExtras.length > 2) {
     posicionCaramelos = $.merge(posicionCaramelos, posicionExtras);
