@@ -25,7 +25,7 @@ function prenderApagar(selector) {
   },
   {
     step: function() {
-      $(this).css('color', 'red')
+      $(this).css('color', '#DCFF0E')
     },
     queue: true
   }
@@ -35,10 +35,10 @@ function prenderApagar(selector) {
 },
 {
   step: function() {
-    $(this).css('color', '#DCFF0E')
+    $(this).css('color', 'red')
   },
   queue: true
-}, 1000
+}, 600
 )
 .delay(1000)
 .animate({
@@ -46,11 +46,21 @@ function prenderApagar(selector) {
 },
 {
   step: function() {
-    $(this).css('color', 'purple')
+    $(this).css('color', '#DCFF0E')
     prenderApagar(selector)
   },
   queue: true
 }
+)
+.animate({
+  opacity: '1'
+},
+{
+  step: function() {
+    $(this).css('color', 'purple')
+  },
+  queue: true
+}, 700
 )
 }
 
@@ -416,12 +426,14 @@ function eliminarCaramelos() {
 /* Acá se inicializa mi juego */
 $(function() {
   // Se activa infinitamente la animación del título
-  // prenderApagar('h1.main-titulo');
+  prenderApagar('h1.main-titulo');
 
   $('.btn-reinicio').click(function() {
+    if ($(this).text() == 'Reiniciar') {
+      location.reload(true);
+    }
     chequearTablero();
+    $(this).text('Reiniciar');
   });
 
 });
-
-// Pruebas relacionadas con las animaciones
