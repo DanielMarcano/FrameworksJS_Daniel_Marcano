@@ -72,8 +72,8 @@ function caramelosFilas(indice) {
   actualizarArraysCaramelos();
   return caramelosFila = $([caramelosCol1.eq(indice), caramelosCol2.eq(indice),
                        caramelosCol3.eq(indice), caramelosCol4.eq(indice),
-                       caramelosCol4.eq(indice), caramelosCol5.eq(indice),
-                       caramelosCol6.eq(indice), caramelosCol7.eq(indice)]);
+                       caramelosCol5.eq(indice), caramelosCol6.eq(indice),
+                       caramelosCol7.eq(indice)]);
 }
 
 // Crea arrays de las columnas
@@ -88,56 +88,87 @@ function caramelosColumnas(indice) {
 // Funcion de prueba
 function validacionVertical() {
   for (var j = 0; j < 7; j++) {
-  // Creamos nuestro array de posiciones
-  var posicionCaramelos = [];
-  var columna = caramelosColumnas(j);
-  // Tomamos el primer objeto de nuestra columna
-  var valorComparacion = columna.eq(0);
-  // Inicializamos el contador en 0
-  var contador = 0;
-  // Nos servirá para saber si hubo una brecha entre nuestra línea de dulces
-  var detenerContador = false;
-  // Iteramos el array de columna
-  for (var i = 1; i < columna.length; i++) {
-    // Guardamos el src de todos los elementos, para compararlos
-    var srcComparacion = valorComparacion.attr('src');
-    // srcCaramelo siempre vendrá después de valorComparacion
-    var srcCaramelo = columna.eq(i).attr('src');
+    // Creamos nuestro array de posiciones
+    var posicionCaramelos = [];
+    // Creamos nuestro array de posiciones extras
+    var posicionExtras = [];
+    // Creamos nuestra columna
+    var columna = caramelosColumnas(j);
+    // Tomamos el primer objeto de nuestra columna
+    var valorComparacion = columna.eq(0);
+    // Inicializamos el contador en 0
+    var contador = 0;
+    // Nos servirá para saber si hubo una brecha
+    var brecha = false;
+    // Iteramos el array de columna
+    for (var i = 1; i < columna.length; i++) {
+      // Guardamos el src de valorComparacion
+      var srcComparacion = valorComparacion.attr('src');
+      // srcCaramelo siempre vendrá después de srcComparacion
+      var srcCaramelo = columna.eq(i).attr('src');
 
-    if (srcComparacion != srcCaramelo) {
-      valorComparacion = columna.eq(i);
-      if (contador < 2) {
-        posicionCaramelos = [];
+      if (srcComparacion != srcCaramelo) {
+        if (contador >= 2) {
+          brecha = true;
+        } else {
+          posicionCaramelos = [];
+        }
         contador = 0;
       } else {
-        detenerContador = true;
-      }
-    } else {
-      if (!detenerContador) {
         if (contador == 0) {
-          posicionCaramelos.push(i-1);
+          if (!brecha) {
+            posicionCaramelos.push(i-1);
+          } else {
+            posicionExtras.push(i-1);
+          }
         }
-        // Guardamos la posicion del caramelo que contamos
-        posicionCaramelos.push(i);
+        if (!brecha) {
+          posicionCaramelos.push(i);
+        } else {
+          posicionExtras.push(i);
+        }
         contador += 1;
       }
+
+      valorComparacion = columna.eq(i);
     }
+    console.log('INICIO COLUMNA ' + j)
+    console.log('El array posicionCaramelos horizontal semifinal SIN MERGE: ' + posicionCaramelos)
+    console.log('El array posicionExtras vertical final: ' + posicionCaramelos)
+    // Si posicionExtras tiene más de dos valores, lo concatenas con posicionCaramelos
+    if (posicionExtras.length > 2) {
+      posicionCaramelos = $.merge(posicionCaramelos, posicionExtras);
+    }
+    console.log('El array posicionCaramelos vertical semifinal: ' + posicionCaramelos)
+
+    // Si posicionCaramelos tiene menos de/o dos caramelos, lo borras
+    if (posicionCaramelos.length <= 2) {
+      posicionCaramelos = [];
+    }
+    // El contador sera igual al numero de caramelos en el array
+    numeroCaramelos = posicionCaramelos.length;
+    // Si hubo tres o más caramelos en línea
+    if (numeroCaramelos >= 3) {
+      console.log('el num caramelos final vertical fue de: ' + numeroCaramelos)
+      console.log('array posicionCaramelos vertical final: ' + posicionCaramelos)
+      eliminarVertical(posicionCaramelos, columna);
+      colocarPuntuacion(numeroCaramelos);
+    }
+    console.log('FIN COLUMNA ' + j)
+
   }
-  // Si hubo tres o más caramelos en línea
-  if (contador >= 2) {
-    eliminarVertical(posicionCaramelos, columna);
-    colocarPuntuacion(contador);
-  }
-}
 }
 
 // Otra funcion de prueba
 function eliminarVertical(posicionCaramelos, columna) {
   for (var i = 0; i < posicionCaramelos.length; i++) {
-    var tmpCaramelo = columna.eq(posicionCaramelos[i]).fadeOut(1500);
-    $(tmpCaramelo).remove();
+    // var tmpCaramelo = columna.eq(posicionCaramelos[i]).fadeOut(500);
+    // $(tmpCaramelo).remove();
+    columna.eq(posicionCaramelos[i]).addClass('eliminar');
   }
-  chequearTablero();
+  // setTimeout(function() {
+  //   chequearTablero();
+  // }, 2000);
 }
 
 
@@ -148,65 +179,96 @@ function validacionHorizontal() {
   for (var j = 0; j < 6; j++) {
   // Creamos nuestro array de posiciones
   var posicionCaramelos = [];
-  var posicionExtra = [];
-  // Creamos nuestro array de caramelos
+  // Creamos nuestro array de posiciones extras
+  var posicionExtras = [];
+  // Creamos nuestra fila
   var fila = caramelosFilas(j);
   // Tomamos el primer objeto de nuestra fila
   var valorComparacion = fila[0];
-
   // Inicializamos el contador en 0
   var contador = 0;
-  var contadorExtra = 0;
-  // Nos servirá para saber si hubo una brecha entre nuestra línea de dulces
-  var detenerContador = false;
+  // Nos servirá para saber si hubo una brecha
+  var brecha = false;
+
   // Iteramos el array de fila
   for (var i = 1; i < fila.length; i++) {
-    // Guardamos el src de todos los elementos, para compararlos
+    // Guardamos el src de valorComparacion
     var srcComparacion = valorComparacion.attr('src');
-    // srcCaramelo siempre vendrá después de valorComparacion
+    // srcCaramelo siempre vendrá después de srcComparacion
     var srcCaramelo = fila[i].attr('src');
 
     if (srcComparacion != srcCaramelo) {
-      valorComparacion = fila[i];
-      if (contador < 2) {
-        posicionCaramelos = [];
-        contador = 0;
+      if (contador >= 2) {
+        brecha = true;
       } else {
-        detenerContador = true;
+        posicionCaramelos = [];
       }
+      contador = 0;
     } else {
-      if (!detenerContador && srcComparacion == srcCaramelo) {
-        if (contador == 0) {
+      if (contador == 0) {
+        if (!brecha) {
           posicionCaramelos.push(i-1);
+        } else {
+          posicionExtras.push(i-1);
         }
-        // Guardamos la posicion del caramelo que contamos
-        posicionCaramelos.push(i);
-        contador += 1;
       }
+      if (!brecha) {
+        posicionCaramelos.push(i);
+      } else {
+        posicionExtras.push(i);
+      }
+      contador += 1;
     }
+
+    valorComparacion = fila[i];
   }
+  console.log('INICIO FILA ' + j)
+  console.log('El array posicionExtras horizontal final: ' + posicionCaramelos)
+  // Si posicionExtras tiene más de dos valores, lo concatenas con posicionCaramelos
+  if (posicionExtras.length > 2) {
+    posicionCaramelos = $.merge(posicionCaramelos, posicionExtras);
+  }
+  console.log('El array posicionCaramelos horizontal semifinal: ' + posicionCaramelos)
+  // Si posicionCaramelos tiene menos de/o dos caramelos, lo borras
+  if (posicionCaramelos.length <= 2) {
+    posicionCaramelos = [];
+  }
+  // El contador sera igual al numero de caramelos en el array
+  numeroCaramelos = posicionCaramelos.length;
   // Si hubo tres o más caramelos en línea
-  if (contador >= 2) {
+  if (numeroCaramelos >= 3) {
+    console.log('el num caramelos final horizontal fue de: ' + numeroCaramelos)
+    console.log('array posicionCaramelos horizontal final: ' + posicionCaramelos)
     eliminarHorizontal(posicionCaramelos, fila);
-    colocarPuntuacion(contador);
+    colocarPuntuacion(numeroCaramelos);
   }
+  console.log('FIN FILA ' + j)
 }
 }
 
 function eliminarHorizontal(posicionCaramelos, fila) {
   for (var i = 0; i < posicionCaramelos.length; i++) {
-    var tmpCaramelo = fila[posicionCaramelos[i]].fadeOut(1500);
-    $(tmpCaramelo).remove();
+    // var tmpCaramelo = fila[posicionCaramelos[i]].fadeOut(1500);
+    // $(tmpCaramelo).remove();
+    fila[posicionCaramelos[i]].addClass('eliminar');
   }
-  chequearTablero();
+  // setTimeout(function() {
+  //   chequearTablero();
+  // }, 2000);
 }
+
+// function removeCaramelo(selector) {
+//   setTimeout(function() {
+//   $(selector).remove();
+//   }, 1000 );
+// }
 
 // Coloca la puntuacion de acuerdo al numero de caramelos obtenido
 function colocarPuntuacion(contador) {
   var score = $('#score-text');
   var puntaje = Number($('#score-text').text());
   switch (contador) {
-    case 2:
+    case 3:
       puntaje += 25;
       break;
     case 4:
@@ -323,3 +385,5 @@ $(function() {
   });
 
 });
+
+// Pruebas relacionadas con las animaciones
