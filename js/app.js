@@ -1,25 +1,19 @@
-// Arrays de caramelos
-var caramelosCol1,
-caramelosCol2,
-caramelosCol3,
-caramelosCol4,
-caramelosCol5,
-caramelosCol6,
-caramelosCol7,
-caramelosColumna,
-caramelosFila;
+/**
+* @desc a candy-crush-like game
+* @author Daniel Marcano danielemarcano96@gmail.com
+*/
 
-/*Inicio de mis funciones*/
+/*Start of game functions*/
 
-// Obtiene numeros random
+// Gets random numbers
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-//Hace que el título Match Game cambie de color infinitamente
-function prenderApagar(selector) {
+// Causes a text to 'blink' while changing its colors infinitely
+function colorBlink(selector) {
   $(selector).animate({
     opacity: '1',
   },
@@ -29,400 +23,415 @@ function prenderApagar(selector) {
     },
     queue: true
   }
-)
-.animate({
-  opacity: '1'
-},
-{
-  step: function() {
-    $(this).css('color', 'red');
+  )
+  .animate({
+    opacity: '1'
   },
-  queue: true
-}, 600
-)
-.delay(1000)
-.animate({
-  opacity: '1'
-},
-{
-  step: function() {
-    $(this).css('color', '#DCFF0E');
+  {
+    step: function() {
+      $(this).css('color', 'red');
+    },
+    queue: true
+  }, 600
+  )
+  .delay(1000)
+  .animate({
+    opacity: '1'
   },
-  queue: true
-}
-)
-.animate({
-  opacity: '1'
-},
-{
-  step: function() {
-    $(this).css('color', 'purple')
-    prenderApagar('h1.main-titulo');
+  {
+    step: function() {
+      $(this).css('color', '#DCFF0E');
+    },
+    queue: true
+  }
+  )
+  .animate({
+    opacity: '1'
   },
-  queue: true
-}
-)
-}
-
-// Actualiza los arrays de caramelos
-function actualizarArraysCaramelos() {
-
-  caramelosCol1 = $('.col-1').children();
-  caramelosCol2 = $('.col-2').children();
-  caramelosCol3 = $('.col-3').children();
-  caramelosCol4 = $('.col-4').children();
-  caramelosCol5 = $('.col-5').children();
-  caramelosCol6 = $('.col-6').children();
-  caramelosCol7 = $('.col-7').children();
-
+  {
+    step: function() {
+      $(this).css('color', 'purple')
+      colorBlink('h1.main-title');
+    },
+    queue: true
+  }
+  );
 }
 
-// Crea arrays de las filas
-function caramelosFilas(indice) {
-  actualizarArraysCaramelos();
-  return caramelosFila = $([caramelosCol1.eq(indice), caramelosCol2.eq(indice),
-                       caramelosCol3.eq(indice), caramelosCol4.eq(indice),
-                       caramelosCol5.eq(indice), caramelosCol6.eq(indice),
-                       caramelosCol7.eq(indice)]);
+// Returns a candyRow or all CandyColumns
+function giveCandyArrays(arrayType, index) {
+
+  var candyCol1 = $('.col-1').children();
+  var candyCol2 = $('.col-2').children();
+  var candyCol3 = $('.col-3').children();
+  var candyCol4 = $('.col-4').children();
+  var candyCol5 = $('.col-5').children();
+  var candyCol6 = $('.col-6').children();
+  var candyCol7 = $('.col-7').children();
+
+  var candyColumns = $([candyCol1, candyCol2, candyCol3, candyCol4,
+                       candyCol5, candyCol6, candyCol7]);
+
+  if (typeof index === 'number') {
+    var candyRow = $([candyCol1.eq(index), candyCol2.eq(index), candyCol3.eq(index),
+                      candyCol4.eq(index), candyCol5.eq(index), candyCol6.eq(index),
+                      candyCol7.eq(index)]);
+  } else {
+    index = '';
+  }
+
+  if (arrayType === 'columns') {
+    return candyColumns;
+  } else if (arrayType === 'rows' && index !== '') {
+    return candyRow;
+  }
 }
 
-// Crea arrays de las columnas
-function caramelosColumnas(indice) {
-  actualizarArraysCaramelos();
-  caramelosColumna = $([caramelosCol1, caramelosCol2, caramelosCol3,
-                        caramelosCol4, caramelosCol5, caramelosCol6,
-                        caramelosCol7]);
-  return caramelosColumna[indice];
+// Creates candyRow arrays
+function candyRows(index) {
+  var candyRow = giveCandyArrays('rows', index);
+  return candyRow;
 }
 
-function validacionVertical() {
+// Creates candyColumn arrays
+function candyColumns(index) {
+  var candyColumn = giveCandyArrays('columns');
+  return candyColumn[index];
+}
+
+// Validates whether there's candy to be deleted in a column
+function columnValidation() {
+  // Iterates over each candyColumn
   for (var j = 0; j < 7; j++) {
-    // Creamos nuestro array de posiciones
-    var posicionCaramelos = [];
-    // Creamos nuestro array de posiciones extras
-    var posicionExtras = [];
-    // Creamos nuestra columna
-    var columna = caramelosColumnas(j);
-    // Tomamos el primer objeto de nuestra columna
-    var valorComparacion = columna.eq(0);
-    // Inicializamos el contador en 0
-    var contador = 0;
-    // Nos servirá para saber si hubo una brecha
-    var brecha = false;
-    // Iteramos el array de columna
-    for (var i = 1; i < columna.length; i++) {
-      // Guardamos el src de valorComparacion
-      var srcComparacion = valorComparacion.attr('src');
-      // srcCaramelo siempre vendrá después de srcComparacion
-      var srcCaramelo = columna.eq(i).attr('src');
+    var counter = 0;
+    // Will save the position of candy
+    var candyPosition = [];
+    // Will save the position of extra candy
+    var extraCandyPosition = [];
+    // Creates a candyColumn
+    var candyColumn = candyColumns(j);
+    // Takes candyColumn's first object
+    var comparisonValue = candyColumn.eq(0);
+    // It will be set to true if there's a gap in between 'candy-lines'
+    var gap = false;
+    // Iterates over candyColumn object
+    for (var i = 1; i < candyColumn.length; i++) {
+      // The src attr of comparisonValue
+      var srcComparison = comparisonValue.attr('src');
+      // the src attr of the object after comparisonValue
+      var srcCandy = candyColumn.eq(i).attr('src');
 
-      if (srcComparacion != srcCaramelo) {
-        if (posicionCaramelos.length >= 3) {
-          brecha = true;
+      if (srcComparison != srcCandy) {
+        if (candyPosition.length >= 3) {
+          gap = true;
         } else {
-          posicionCaramelos = [];
+          candyPosition = [];
         }
-        contador = 0;
+        counter = 0;
       } else {
-        if (contador == 0) {
-          if (!brecha) {
-            posicionCaramelos.push(i-1);
+        if (counter == 0) {
+          if (!gap) {
+            candyPosition.push(i-1);
           } else {
-            posicionExtras.push(i-1);
+            extraCandyPosition.push(i-1);
           }
         }
-        if (!brecha) {
-          posicionCaramelos.push(i);
+        if (!gap) {
+          candyPosition.push(i);
         } else {
-          posicionExtras.push(i);
+          extraCandyPosition.push(i);
         }
-        contador += 1;
+        counter += 1;
       }
-
-      valorComparacion = columna.eq(i);
+      // Updates comparisonValue
+      comparisonValue = candyColumn.eq(i);
     }
-    // Si posicionExtras tiene más de dos valores, lo concatenas con posicionCaramelos
-    if (posicionExtras.length > 2) {
-      posicionCaramelos = $.merge(posicionCaramelos, posicionExtras);
+    // If extraCandyPosition has more than two elements, it's merged with candyPosition
+    if (extraCandyPosition.length > 2) {
+      candyPosition = $.merge(candyPosition, extraCandyPosition);
     }
-    // Si posicionCaramelos tiene menos de/o dos caramelos, lo borras
-    if (posicionCaramelos.length <= 2) {
-      posicionCaramelos = [];
+    // If candyPosition has less than/or two elements, it is deleted
+    if (candyPosition.length <= 2) {
+      candyPosition = [];
     }
-    // El numeroCaramelos sera igual al numero de elementos en el array
-    numeroCaramelos = posicionCaramelos.length;
-    // Si hubo tres o más caramelos en línea
-    if (numeroCaramelos >= 3) {
-      eliminarVertical(posicionCaramelos, columna);
-      colocarPuntuacion(numeroCaramelos);
+    // CandyCount is equal to the number of elements in candyPosition
+    candyCount = candyPosition.length;
+    // If there was a 'candy line' of 3 or more
+    if (candyCount >= 3) {
+      deleteColumnCandy(candyPosition, candyColumn);
+      setScore(candyCount);
     }
   }
 }
 
-// Añade la clase eliminar a "líneas" verticales
-function eliminarVertical(posicionCaramelos, columna) {
-  for (var i = 0; i < posicionCaramelos.length; i++) {
-    columna.eq(posicionCaramelos[i]).addClass('eliminar');
+// Adds the class 'delete' to 'candy lines' found in candyColumns
+function deleteColumnCandy(candyPosition, candyColumn) {
+  for (var i = 0; i < candyPosition.length; i++) {
+    candyColumn.eq(candyPosition[i]).addClass('delete');
   }
 }
 
-function validacionHorizontal() {
-  // Con este for, le aplicamos la validacion a todas las filas
+// Validates whether there's candy to be deleted in a row
+function rowValidation() {
+  // Iterates over each candyRow
   for (var j = 0; j < 6; j++) {
-  // Creamos nuestro array de posiciones
-  var posicionCaramelos = [];
-  // Creamos nuestro array de posiciones extras
-  var posicionExtras = [];
-  // Creamos nuestra fila
-  var fila = caramelosFilas(j);
-  // Tomamos el primer objeto de nuestra fila
-  var valorComparacion = fila[0];
-  // Inicializamos el contador en 0
-  var contador = 0;
-  // Nos servirá para saber si hubo una brecha
-  var brecha = false;
+    var counter = 0;
+    // Will save the position of candy
+    var candyPosition = [];
+    // Will save the position of extra candy
+    var extraCandyPosition = [];
+    // Creates a candyRow
+    var candyRow = candyRows(j);
+    // Takes candyRow's first object
+    var comparisonValue = candyRow[0];
+    // It will be set to true if there's a gap in between 'candy-lines'
+    var gap = false;
+    // Iterates over candyRow array
+    for (var i = 1; i < candyRow.length; i++) {
+      // The src attr of comparisonValue
+      var srcComparison = comparisonValue.attr('src');
+      // the src attr of the object after comparisonValue
+      var srcCandy = candyRow[i].attr('src');
 
-  // Iteramos el array de fila
-  for (var i = 1; i < fila.length; i++) {
-    // Guardamos el src de valorComparacion
-    var srcComparacion = valorComparacion.attr('src');
-    // srcCaramelo siempre vendrá después de srcComparacion
-    var srcCaramelo = fila[i].attr('src');
-
-    if (srcComparacion != srcCaramelo) {
-      if (posicionCaramelos.length >= 3) {
-        brecha = true;
-      } else {
-        posicionCaramelos = [];
-      }
-      contador = 0;
-    } else {
-      if (contador == 0) {
-        if (!brecha) {
-          posicionCaramelos.push(i-1);
+      if (srcComparison != srcCandy) {
+        if (candyPosition.length >= 3) {
+          gap = true;
         } else {
-          posicionExtras.push(i-1);
+          candyPosition = [];
         }
-      }
-      if (!brecha) {
-        posicionCaramelos.push(i);
+        counter = 0;
       } else {
-        posicionExtras.push(i);
+        if (counter == 0) {
+          if (!gap) {
+            candyPosition.push(i-1);
+          } else {
+            extraCandyPosition.push(i-1);
+          }
+        }
+        if (!gap) {
+          candyPosition.push(i);
+        } else {
+          extraCandyPosition.push(i);
+        }
+        counter += 1;
       }
-      contador += 1;
+      // Updates comparisonValue
+      comparisonValue = candyRow[i];
     }
-
-    valorComparacion = fila[i];
-  }
-  // Si posicionExtras tiene más de dos valores, lo concatenas con posicionCaramelos
-  if (posicionExtras.length > 2) {
-    posicionCaramelos = $.merge(posicionCaramelos, posicionExtras);
-  }
-  // Si posicionCaramelos tiene menos de/o dos caramelos, lo borras
-  if (posicionCaramelos.length <= 2) {
-    posicionCaramelos = [];
-  }
-  // El numeroCaramelos sera igual al numero de elementos en el array
-  numeroCaramelos = posicionCaramelos.length;
-  // Si hubo tres o más caramelos en línea
-  if (numeroCaramelos >= 3) {
-    eliminarHorizontal(posicionCaramelos, fila);
-    colocarPuntuacion(numeroCaramelos);
-  }
-}
-}
-
-// Añade la clase eliminar a "líneas" horizontales
-function eliminarHorizontal(posicionCaramelos, fila) {
-  for (var i = 0; i < posicionCaramelos.length; i++) {
-    fila[posicionCaramelos[i]].addClass('eliminar');
+    // If extraCandyPosition has more than two elements, it's merged with candyPosition
+    if (extraCandyPosition.length > 2) {
+      candyPosition = $.merge(candyPosition, extraCandyPosition);
+    }
+    // If candyPosition has less than/or two elements, it is deleted
+    if (candyPosition.length <= 2) {
+      candyPosition = [];
+    }
+    // CandyCount is equal to the number of elements in candyPosition
+    candyCount = candyPosition.length;
+    // If there was a 'candy line' of 3 or more
+    if (candyCount >= 3) {
+      deleteHorizontal(candyPosition, candyRow);
+      setScore(candyCount);
+    }
   }
 }
 
-// Coloca la puntuacion de acuerdo al numero de caramelos obtenido
-function colocarPuntuacion(numeroCaramelos) {
-  var score = $('#score-text');
-  var puntaje = Number($('#score-text').text());
-  switch (numeroCaramelos) {
+// Adds the class 'delete' to 'candy lines' in candyRows
+function deleteHorizontal(candyPosition, candyRow) {
+  for (var i = 0; i < candyPosition.length; i++) {
+    candyRow[candyPosition[i]].addClass('delete');
+  }
+}
+
+// Sets the score according to the number of candy you got
+function setScore(candyCount) {
+  var score = Number($('#score-text').text());
+  switch (candyCount) {
     case 3:
-      puntaje += 25;
+      score += 25;
       break;
     case 4:
-      puntaje += 50;
+      score += 50;
       break;
     case 5:
-      puntaje += 75;
+      score += 75;
       break;
     case 6:
-      puntaje += 100;
+      score += 100;
       break;
     case 7:
-      puntaje += 200;
+      score += 200;
   }
-  $(score).text(puntaje);
+  $('#score-text').text(score);
 }
 
-//Se activa cada vez que se inicia el juego, u ocurren cambios en el tablero
-function chequearTablero() {
-  // Si hay columnas sin dulces, esta función las rellenará
-  llenarColumnas();
+// It is called whenever the game starts, or changes occur in the game board
+function checkBoard() {
+  fillBoard();
 }
 
-function llenarColumnas() {
-  var tope = 6;
-  var columna = $('[class^="col-"]');
+function fillBoard() {
+  var top = 6;
+  var column = $('[class^="col-"]');
 
-  columna.each(function() {
-    var caramelos = $(this).children().length;
-    var agrega = tope - caramelos;
+  column.each(function() {
+    var candys = $(this).children().length;
+    var agrega = top - candys;
     for (var i = 0; i < agrega; i++) {
-      // Obtiene un caramelo al azar
-      var numeroCaramelo = getRandomInt(1, 5);
-      // Si la columna no tiene caramelos y estás en la primera iteración
-      // usa append
-      if (i == 0 && caramelos < 1) {
-        $(this).append('<img src="image/'+numeroCaramelo+'.png"></img>');
-        $(this).find('img').slideDown();
+      // Gets a random candy type
+      var candyType = getRandomInt(1, 5);
+      // If the column is empty, uses append
+      if (i == 0 && candys < 1) {
+        $(this).append('<img src="image/'+candyType+'.png" class="element"></img>');
       } else {
-        // Sino, usa before, para que los nuevos caramelos
-        // empujen a los viejos hacia abajo
-        $(this).find('img:eq(0)').before('<img src="image/'+numeroCaramelo+'.png"></img>');
-        $(this).find('img:eq(0)').slideDown();
+        // Or else, pushes the upper, older, candy downwards, inserting the newer before them
+        $(this).find('img:eq(0)').before('<img src="image/'+candyType+'.png" class="element"></img>');
       }
     }
   });
-  agregaEventos();
-  realizarValidaciones();
+  addCandyEvents();
+  setValidations();
 }
 
-// Activa las validaciones verticales y horizontales
-function realizarValidaciones() {
-  validacionVertical();
-  validacionHorizontal();
-  // Si hay caramelos que eliminar...
-  if ($('img.eliminar').length != 0) {
-    setTimeout(eliminarCaramelos(), 500);
+// Sets both column and row validations
+function setValidations() {
+  columnValidation();
+  rowValidation();
+  // If there's candy to be deleted
+  if ($('img.delete').length != 0) {
+    deletesCandyAnimation();
   }
 }
 
-// Añade los eventos de los caramelos. Es llamada cada vez que se crean caramelos
-function agregaEventos() {
+// Adds candy's events. Called whenever they are created
+function addCandyEvents() {
   $('img').draggable({
-    containment: '.panel-tablero',
+    containment: '.panel-board',
     droppable: 'img',
     revert: true,
     revertDuration: 500,
     grid: [100, 100],
     zIndex: 10,
-    drag: controlarMovimiento
+    drag: constrainCandyMovement
   });
   $('img').droppable({
-    drop: reemplazarCaramelos
+    drop: swapCandy
   });
-  reactivaEventos();
+  enableCandyEvents();
 }
 
-function desactivaEventos() {
+function disableCandyEvents() {
   $('img').draggable('disable');
   $('img').droppable('disable');
 }
 
-function reactivaEventos() {
+function enableCandyEvents() {
   $('img').draggable('enable');
   $('img').droppable('enable');
 }
 
-// Limita el movimiento de los caramelos
-function controlarMovimiento(event, carameloDrag) {
-  carameloDrag.position.top = Math.min(100, carameloDrag.position.top);
-  carameloDrag.position.bottom = Math.min(100, carameloDrag.position.bottom);
-  carameloDrag.position.left = Math.min(100, carameloDrag.position.left);
-  carameloDrag.position.right = Math.min(100, carameloDrag.position.right);
+// Limits the candy's movement (this one is faulty)
+function constrainCandyMovement(event, candyDrag) {
+  candyDrag.position.top = Math.min(100, candyDrag.position.top);
+  candyDrag.position.bottom = Math.min(100, candyDrag.position.bottom);
+  candyDrag.position.left = Math.min(100, candyDrag.position.left);
+  candyDrag.position.right = Math.min(100, candyDrag.position.right);
 }
 
-// Reemplaza los caramelos (drag and drop)
-function reemplazarCaramelos(event, carameloDrag) {
-  // Almacenamos nuestro caramelo draggable en una variable
-  var carameloDrag = $(carameloDrag.draggable);
-  // Obtenemos el src del caramelo que arrastramos (draggable)
-  var dragSrc = carameloDrag.attr('src');
-  // Almacenamos nuestro caramelo droppable en una variable
-  var carameloDrop = $(this);
-  // Obtenemos el src del caramelo objetivo (droppable)
-  var dropSrc = carameloDrop.attr('src');
-  // Intercambiamos el src de los caramelos
-  carameloDrag.attr('src', dropSrc);
-  // $(this).attr('src', dragSrc);
-  carameloDrop.attr('src', dragSrc);
+// Swaps one candy for another (through drag and drop)
+function swapCandy(event, candyDrag) {
+  // The candy that was dragged
+  var candyDrag = $(candyDrag.draggable);
+  // The src attr of candyDrag
+  var dragSrc = candyDrag.attr('src');
+  // The 'droppable' candy
+  var candyDrop = $(this);
+  // The src attr of candyDrop
+  var dropSrc = candyDrop.attr('src');
+  // We swap candyDrag and candyDrag src attributes
+  candyDrag.attr('src', dropSrc);
+  candyDrop.attr('src', dragSrc);
 
   setTimeout(function() {
-    actualizarArraysCaramelos();
-    chequearTablero();
-    // Este condicional impide las jugadas incorrectas
-    if ($('img.eliminar').length == 0) {
-      carameloDrag.attr('src', dragSrc);
-      carameloDrop.attr('src', dropSrc);
-      actualizarArraysCaramelos();
+    checkBoard();
+    // This way, we impede wrong moves
+    if ($('img.delete').length == 0) {
+      // candyDrag and candyDrop are given their initial src's
+      candyDrag.attr('src', dragSrc);
+      candyDrop.attr('src', dropSrc);
     } else {
-      actualizarMovimientos();
+      updateMoves();
     }
   }, 500);
 
 }
 
-// Actualiza el contador de Movimientos
-function actualizarMovimientos() {
-  var valorActual = Number($('#movimientos-text').text());
-  var suma = valorActual += 1;
-  $('#movimientos-text').text(suma);
+// Updates the moves value
+function updateMoves() {
+  var actualValue = Number($('#moves-text').text());
+  var result = actualValue += 1;
+  $('#moves-text').text(result);
 }
 
-// Elimina los caramelos con una animacion
-function eliminarCaramelos() {
-  desactivaEventos();
-  $('img.eliminar').effect('pulsate', 1000);
-  $('img.eliminar').animate({
+// Animation that precedes candy deletion
+function deletesCandyAnimation() {
+  disableCandyEvents();
+  $('img.delete').effect('pulsate', 1000);
+  $('img.delete').animate({
     opacity: '0'
-  }, 1000
+  },{
+    duration: 800
+  }
   )
   .animate({
     opacity: '0'
   },
   {
-    step: function() {
-      $('img.eliminar').remove();
-      chequearTablero();
+    duration: 1000,
+    complete: function() {
+      deletesCandy();
+      checkBoard();
     },
     queue: true
   }
   )
 }
 
-//Culmina el juego
-function culminarJuego() {
-  $('div.panel-tablero, div.time').effect('fold');
-  $('h1.main-titulo').css('text-align', 'center')
-  .text('Thanks for playing!');
-  $('div').width('100%');
+// Deletes candy
+function deletesCandy() {
+  $('img.delete').remove();
 }
 
-/* Fin de mis funciones */
+//Ends the game
+function endGame() {
+  $('div.panel-board, div.time').effect('fold');
+  $('h1.main-title').addClass('title-over')
+  .text('Thanks for playing!');
+  $('div.score, div.moves, div.panel-score').width('100%');
+}
 
-/* Acá se inicializa mi juego */
-$(function() {
-  // Se activa infinitamente la animación del título
-  prenderApagar('h1.main-titulo');
+// Starts the game
+function initGame() {
 
-  $('.btn-reinicio').click(function() {
-    // Recarga la página
-    if ($(this).text() == 'Reiniciar') {
+  colorBlink('h1.main-title');
+
+  $('.btn-retry').click(function() {
+    // Reloads the page when clicked for the second time
+    if ($(this).text() == 'Retry') {
       location.reload(true);
     }
-    chequearTablero();
-    $(this).text('Reiniciar');
+    checkBoard();
+    $(this).text('Retry');
     // Comenzar a contar el tiempo
     $('#timer').startTimer({
-      onComplete: culminarJuego
-    });
+      onComplete: endGame
+    })
   });
+}
+
+/* End of game functions */
+
+/* It prepares the game */
+$(function() {
+  initGame();
 });
