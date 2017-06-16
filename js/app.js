@@ -267,7 +267,9 @@ function setScore(candyCount) {
 
 // It is called whenever the game starts, or changes occur in the game board
 function checkBoard() {
-  fillBoard();
+  // if (result) {
+    fillBoard();
+  // }
 }
 
 function fillBoard() {
@@ -366,6 +368,12 @@ function swapCandy(event, candyDrag) {
 
 }
 
+function checkBoardPromise(result) {
+  if (result) {
+    checkBoard();
+  }
+}
+
 // Updates the moves value
 function updateMoves() {
   var actualValue = Number($('#moves-text').text());
@@ -385,21 +393,33 @@ function deletesCandyAnimation() {
   )
   .animate({
     opacity: '0'
-  },
+  }
+  ,
   {
     duration: 1000,
     complete: function() {
-      deletesCandy();
-      checkBoard();
+      deletesCandy()
+        .then(checkBoardPromise)
+        .catch(showError)
     },
     queue: true
   }
   )
 }
 
-// Deletes candy
+function showPromiseError(error) {
+  console.log(error)
+}
+
+// Deletes candy (returns a promise)
 function deletesCandy() {
-  $('img.delete').remove();
+  return new Promise(function (resolve, reject) {
+    if($('img.delete').remove()) {
+      resolve(true);
+    } else {
+      reject('Candy could not be deleted...');
+    }
+  })
 }
 
 //Ends the game
@@ -422,7 +442,7 @@ function initGame() {
     }
     checkBoard();
     $(this).text('Retry');
-    // Comenzar a contar el tiempo
+    // Starts the timer
     $('#timer').startTimer({
       onComplete: endGame
     })
