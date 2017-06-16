@@ -400,7 +400,7 @@ function deletesCandyAnimation() {
     complete: function() {
       deletesCandy()
         .then(checkBoardPromise)
-        .catch(showError)
+        .catch(showPromiseError)
     },
     queue: true
   }
@@ -408,7 +408,7 @@ function deletesCandyAnimation() {
 }
 
 function showPromiseError(error) {
-  console.log(error)
+  console.log(error);
 }
 
 // Deletes candy (returns a promise)
